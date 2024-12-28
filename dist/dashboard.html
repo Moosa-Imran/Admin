@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta content="width=device-width, initial-scale=1, maximum-scale=1, shrink-to-fit=no" name="viewport">
+    <title>Dashboard</title>
+
+    <!-- General CSS Files -->
+    <link rel="stylesheet" href="asset/admin/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/izitoast/1.4.0/css/iziToast.css">
+    <link rel="stylesheet" href="asset/admin/css/style.css">
+    <link rel="stylesheet" href="asset/admin/css/components.css">
+    <link rel="stylesheet" href="asset/admin/css/custom.css">
+
+
+</head>
+
+<body>
+    <div id="app">
+        <div class="main-wrapper">
+            <div id="overlay">
+                <div class="cv-spinner">
+                    <span class="spinner"></span>
+                </div>
+            </div>
+
+            <nav class="navbar navbar-expand-lg main-navbar">
+                <form class="form-inline mr-auto">
+                    <ul class="navbar-nav mr-3">
+                        <li class="bars-icon-navbar">
+                            <a href="#" data-toggle="sidebar" class="nav-link nav-link-lg">
+                                <i data-feather="menu"></i>
+                            </a>
+                        </li>
+                    </ul>
+                    <div class="search-element">
+                        <a href="https://lasttradingzone.com/" target="_blank"
+                            class="gr-bg-1 text-white text-decoration-none p-2 rounded">
+                            <i class="fas fa-globe-africa mr-2"></i><span class="font-weight-bold">Visit site</span>
+                        </a>
+                    </div>
+                </form>
+
+                <ul class="navbar-nav navbar-right">
+                    <li class="dropdown dropdown-list-toggle">
+                        <a href="#" data-toggle="dropdown" class="nav-link notification-toggle nav-link-lg beep">
+                            <i data-feather="bell"></i>
+                        </a>
+                        <div class="dropdown-menu dropdown-list dropdown-menu-right">
+                            <div class="dropdown-header">Notifications
+                                <div class="float-right">
+                                    <a href="/mark-as-read">Mark all as read</a>
+                                </div>
+                            </div>
+
+                            <!-- Notification Content -->
+                            <div class="dropdown-list-content dropdown-list-icons">
+                                <!-- Example Notification (uncomment and duplicate for each notification) -->
+                                <!--
+                                <a href="/users" class="dropdown-item dropdown-item-unread">
+                                    <div class="dropdown-item-icon bg-primary text-white">
+                                        <i class="fas fa-user"></i>
+                                    </div>
+                                    <div class="dropdown-item-desc">
+                                        Primetech management has just registered
+                                        <div class="time text-primary">1 hour ago</div>
+                                    </div>
+                                </a>
+                                -->
+                                <!-- Default Message if No Notifications -->
+                                <div class="dropdown-item text-center">
+                                    <div class="dropdown-item-icon bg-light text-muted">
+                                        <i class="fas fa-bell-slash"></i>
+                                    </div>
+                                    <div class="dropdown-item-desc">
+                                        No notifications yet
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </li>
+
+                    <li class="dropdown">
+                        <a href="#" data-toggle="dropdown"
+                            class="nav-link dropdown-toggle nav-link-lg nav-link-user d-flex align-items-center">
+                            <span class="text-capitalize">Hi, admin</span>
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-right">
+                            <a href="/profile" class="dropdown-item has-icon">
+                                <i class="far fa-user"></i> Profile
+                            </a>
+                            <a href="/logout" class="dropdown-item has-icon text-danger">
+                                <i class="fas fa-sign-out-alt"></i> Logout
+                            </a>
+                        </div>
+                    </li>
+                </ul>
+            </nav>
+
+
+            <div class="main-sidebar">
+                <aside id="sidebar-wrapper">
+                    <div class="sidebar-brand">
+                        <a href="/dashboard">Last Trading Zone</a>
+                    </div>
+
+                    <ul class="sidebar-menu">
+
+                        <li class="nav-item dropdown active">
+                            <a href="/dashboard" class="nav-link">
+                                <i data-feather="home"></i>
+                                <span>Dashboard</span>
+                            </a>
+                        </li>
+
+                        <li class="sidebar-menu-caption">User Management</li>
+
+                        <li class="nav-item">
+                            <a class="nav-link" href="/users">
+                                <i data-feather="user"></i>
+                                <span>Subscribed Users</span>
+                            </a>
+                        </li>
+
+                        <li class="sidebar-menu-caption">Assets Management</li>
+
+                        <li class="nav-item dropdown">
+                            <a href="#" class="nav-link has-dropdown" data-toggle="dropdown">
+                                <i class="fa-solid fa-dollar"> </i>
+                                <span>&nbsp; &nbsp; &nbsp; Crypto</span>
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li>
+                                    <a class="nav-link" href="/add-news">Add News</a>
+                                </li>
+                                <li>
+                                    <a class="nav-link" href="/delete-news">Delete News</a>
+                                </li>
+                                <li>
+                                    <a class="nav-link" href="/edit-links">Edit Links</a>
+                                </li>
+                            </ul>
+                        </li>
+
+                    </ul>
+                </aside>
+            </div>
+
+            <div class="main-content">
+                <section class="section">
+
+
+                    <div class="section-header pl-0 d-flex justify-content-between">
+                        <h1 class="pl-0">Dashboard</h1>
+                        <h4>
+
+                        </h4>
+                    </div>
+
+
+
+                    <div class="row">
+                        <div class="custom-xxxl-3 custom-xxl-4 col-md-6 col-sm-6 col-12 mb-4">
+                            <div class="card-stat gr-bg-4">
+                                <div class="icon">
+                                    <i class="far fa-user"></i>
+                                </div>
+                                <div class="content">
+                                    <p class="caption">Subscribed Users</p>
+                                    <h4 class="card-stat-amount"><span id="total_users">0</span></h4>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </section>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- General JS Scripts -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="asset/admin/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/izitoast/1.4.0/js/iziToast.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/feather-icons@4.28.0/dist/feather.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.nicescroll/3.7.6/jquery.nicescroll.min.js"></script>
+    <script src="asset/admin/js/scripts.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.4/dist/Chart.min.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            // Fetch and update all data when the page loads
+            fetchAndCalculateData();
+
+            function fetchAndCalculateData() {
+                // Fetch data from all three routes concurrently
+                Promise.all([
+                    fetch('/allusers').then(res => res.json()),
+                ])
+                    .then(([users]) => {
+                        // Initialize counters
+                        let totalUsers = 0;
+
+                        // Process users data
+                        totalUsers = users.length;
+
+                        // Update HTML elements with calculated values
+                        $('#total_users').text(totalUsers);
+                    })
+                    .catch(error => {
+                        console.error('Error fetching data:', error);
+                        iziToast.error({
+                            title: 'Error',
+                            message: 'Could not fetch data',
+                            position: 'topRight'
+                        });
+                    });
+            }
+        });
+
+    </script>
+
+</body>
+
+</html>
