@@ -23,7 +23,7 @@ app.use(session({
     ttl: 4 * 24 * 60 * 60,
   }),
   cookie: { 
-    secure: false,
+    secure: true,
     httpOnly: true,
     maxAge: 4 * 24 * 60 * 60 * 1000,
     sameSite: 'lax', 

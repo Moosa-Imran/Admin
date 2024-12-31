@@ -167,7 +167,7 @@
             <div class="main-content">
                 <section class="section">
                     <div class="section-header">
-                        <h1>Manage News</h1>
+                        <h1>Manual Payments</h1>
                     </div>
 
                     <div class="row">
@@ -175,12 +175,15 @@
                             <div class="card">
                                 <div class="card-body p-0">
                                     <div class="table-responsive">
-                                        <table class="table table-striped" id="newsTable">
+                                        <table class="table table-striped" id="paymentsTable">
                                             <thead>
                                                 <tr>
                                                     <th>Sl</th>
-                                                    <th>Heading</th>
+                                                    <th>Name</th>
+                                                    <th>Amount</th>
+                                                    <th>Source</th>
                                                     <th>Date</th>
+                                                    <th>Status</th>
                                                     <th>Action</th>
                                                 </tr>
                                             </thead>
@@ -199,28 +202,51 @@
         </div>
     </div>
 
-
-    <!-- Delete Modal -->
-    <div class="modal" id="deleteModal" tabindex="-1" role="dialog">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Confirm Delete</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <p>Are you sure you want to delete the news?</p>
-                    <p class="text-danger font-weight-bold mt-2">This process is irreversible.</p>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-danger" id="confirmDelete">Delete</button>
-                </div>
+<!-- Confirmation Modal -->
+<div class="modal" id="confirmModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Confirm Action</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to resolve this payment?</p>
+                <label for="confirmComment">Comment</label>
+                <textarea id="confirmComment" class="form-control" rows="2" placeholder="Enter a comment">Thanks! For Subscribing</textarea>
+                
+                <!-- Irreversible warning note -->
+                <p class="text-danger font-weight-bold mt-2">This process is irreversible.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="confirmAccept">Accept</button>
             </div>
         </div>
     </div>
+</div>
+
+<!-- Details Modal -->
+<div class="modal fade" id="detailsModal" tabindex="-1" role="dialog" aria-labelledby="detailsModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="detailsModalLabel">Details</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <!-- Content will be injected here by JavaScript -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 
     <!-- General JS Scripts -->
@@ -234,82 +260,191 @@
 
     <script>
         $(document).ready(function () {
+            // Fetch pending payments
             $.ajax({
-                url: '/getNews',
+                url: '/payments/status',
                 method: 'GET',
-                success: function (response) { // Renamed to 'response' for clarity
-                    const tbody = $('#newsTable tbody');
+                data: { status: 'Pending' },
+                success: function (data) {
+                    const tbody = $('#paymentsTable tbody');
                     tbody.empty(); // Clear existing data
-
+    
                     // Check if data is empty
-                    if (!response.status || response.news.length === 0) {
-                        tbody.append('<tr><td colspan="7" class="text-center">No News found.</td></tr>');
+                    if (data.length === 0) {
+                        tbody.append('<tr><td colspan="7" class="text-center">No pending payments found.</td></tr>');
                         return;
                     }
-
+    
                     // Populate the table with fetched data
-                    response.news.forEach((item, index) => {
+                    data.forEach((item, index) => {
                         tbody.append(`
-                <tr>
-                    <td>${index + 1}</td>
-                    <td>${item.newsHeading}</td>
-                    <td>${new Date(item.newsDate).toLocaleDateString()}</td>
-                    <td>
-                        <button class="btn text-white btn-md btn-danger delete" data-news-id="${item._id}">Delete</button>
-                    </td>
-                </tr>
-            `);
+                            <tr>
+                                <td>${index + 1}</td>
+                                <td>${item.fullName}</td>
+                                <td>$${item.plan}</td>
+                                <td>${item.referralSource}</td>
+                                <td>${new Date(item.createdAt).toLocaleDateString()}</td>
+                                <td><span class="badge badge-warning">Pending</span></td>
+                                <td>
+                                    <button class="btn btn-md btn-info details" invest-id="${item._id}">Details</button>
+                                    <button class="btn text-white btn-md btn-primary accept" invest-id="${item._id}">Resolve</button>
+                                </td>
+                            </tr>
+                        `);
                     });
                 },
                 error: function (xhr, status, error) {
                     console.error(error);
                     iziToast.error({
                         title: 'Error',
-                        message: 'Could not fetch news!',
+                        message: 'Could not fetch pending payments!',
                         position: 'topRight'
                     });
                 }
             });
-
-
-            // Handle delete button click
-            $(document).on('click', '.delete', function () {
-                const newsId = $(this).data('news-id'); // Get news ID
-                $('#deleteModal').data('news-id', newsId).modal('show'); // Store ID in modal data
+    
+            // Handle Accept button click
+            $(document).on('click', '.accept', function () {
+                const investId = $(this).attr('invest-id'); // Get investment ID
+                $('#confirmModal').data('invest-id', investId).modal('show'); // Store ID in modal data
             });
-
-            // Handle Confirm delete button click
-            $('#confirmDelete').on('click', function () {
-                const newsId = $('#deleteModal').data('news-id'); // Retrieve news ID
-
-                // Call the delete route
+    
+            // Handle Reject button click
+            $(document).on('click', '.reject', function () {
+                const investId = $(this).attr('invest-id'); // Get investment ID
+                $('#rejectModal').data('invest-id', investId).modal('show'); // Store ID in modal data
+            });
+    
+            // Handle Details button click
+            $(document).on('click', '.details', function () {
+                const investId = $(this).attr('invest-id');
+    
+                // Fetch details for the selected investment
                 $.ajax({
-                    url: `/deleteNews/${newsId}`,
-                    method: 'DELETE',
-                    success: function (response) {
-                        $('#deleteModal').modal('hide'); // Hide the delete modal
-                        iziToast.success({
-                            title: 'Deleted',
-                            message: 'News deleted successfully!',
+                    url: `/investments/${investId}`,
+                    method: 'GET',
+                    success: function (item) {
+                        let imgPath = `https://lasttradingzone.com/uploads/payments/${item.screenshotPath.slice(9)}`;
+                        // Prepare the modal content
+                        const modalContent = `
+                            <div class="modal-header">
+                                <h5 class="modal-title">Details:</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <p><strong>Name:</strong> ${item.fullName}</p>
+                                <p><strong>Contact No:</strong> ${item.phoneNumber}</p>
+                                <p><strong>Method:</strong> ${item.contactMethod}</p>
+                                <p><strong>Source:</strong> ${item.referralSource}</p>
+                                <p><strong>Friend Name:</strong> ${item.friendName}</p>
+                                <p><strong>Transaction ID:</strong> ${item.transactionID}</p>
+                                <p><strong>Plan:</strong> ${item.plan}</p>
+                                <p><strong>Date:</strong> ${new Date(item.createdAt).toLocaleDateString()}</p>
+                                <p><strong>Status:</strong> <span class="badge badge-warning">Pending</span></p>
+                                <p><strong>Screenshot:</strong></p>
+                                <img src="${imgPath}" alt="Screenshot" class="img-fluid" style="max-height: 300px; object-fit: cover;">
+                                <div class="mt-2">
+                                    <a href="${imgPath}" target="_blank" class="btn btn-primary">Open Image in New Tab</a>
+                                </div>
+                            </div>
+                        `;
+    
+                        // Set modal content and show the modal
+                        $('#detailsModal .modal-content').html(modalContent);
+                        $('#detailsModal').modal('show');
+                    },
+                    error: function (xhr, status, error) {
+                        console.error(error);
+                        iziToast.error({
+                            title: 'Error',
+                            message: 'Could not fetch payment details!',
                             position: 'topRight'
                         });
+                    }
+                });
+            });
+    
+            // Handle Confirm Accept button click
+            $('#confirmAccept').on('click', function () {
+                const investId = $('#confirmModal').data('invest-id'); // Retrieve investment ID
+                const comment = $('#confirmComment').val();
+                
+                if (comment.trim() === "") {
+                    iziToast.error({
+                        title: 'Error',
+                        message: 'Comment cannot be empty!',
+                        position: 'topRight'
+                    });
+                    return;
+                }
+    
+                // Call the investment control route
+                $.ajax({
+                    url: `/investmentControl/${investId}?status=active&comment=${encodeURIComponent(comment)}`,
+                    method: 'PUT',
+                    success: function (response) {
+                        $('#confirmModal').modal('hide'); // Hide the confirm modal
+                        iziToast.success({
+                            title: 'Success',
+                            message: 'Payment accepted successfully!',
+                            position: 'topRight'
+                        });
+                        // Optionally, refresh the payments table or remove the row
                         location.reload(); // Reload the page to refresh the table
                     },
                     error: function (xhr, status, error) {
                         console.error(error);
                         iziToast.error({
                             title: 'Error',
-                            message: 'Could not delete the news!',
+                            message: 'Could not accept the payment!',
                             position: 'topRight'
                         });
                     }
                 });
-
             });
-            
+    
+            // Handle Confirm Reject button click
+            $('#confirmReject').on('click', function () {
+                const investId = $('#rejectModal').data('invest-id'); // Retrieve investment ID
+                const comment = $('#rejectComment').val();
+                
+                if (comment.trim() === "") {
+                    iziToast.error({
+                        title: 'Error',
+                        message: 'Comment cannot be empty!',
+                        position: 'topRight'
+                    });
+                    return;
+                }
+    
+                // Call the investment control route
+                $.ajax({
+                    url: `/investmentControl/${investId}?status=rejected&comment=${encodeURIComponent(comment)}`,
+                    method: 'PUT',
+                    success: function (response) {
+                        $('#rejectModal').modal('hide'); // Hide the reject modal
+                        iziToast.success({
+                            title: 'Rejected',
+                            message: 'Payment rejected successfully!',
+                            position: 'topRight'
+                        });
+                        // Optionally, refresh the payments table or remove the row
+                        location.reload(); // Reload the page to refresh the table
+                    },
+                    error: function (xhr, status, error) {
+                        console.error(error);
+                        iziToast.error({
+                            title: 'Error',
+                            message: 'Could not reject the payment!',
+                            position: 'topRight'
+                        });
+                    }
+                });
+            });
         });
     </script>
-
 
 
 </body>

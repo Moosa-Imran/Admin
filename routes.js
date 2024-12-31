@@ -192,6 +192,78 @@ router.delete('/deleteNews/:newsId', isAuthenticated, async (req, res) => {
     }
 });
 
+// Route to get payment by status
+router.get('/payments/status', isAuthenticated, async (req, res) => {
+    const { status } = req.query;
+
+    if (!status) {
+        return res.status(400).json({ message: 'Status is required' });
+    }
+
+    try {
+        const investments = await req.app.locals.dataDb.collection('Payments').find({ status }).toArray();
+
+        // Return an empty array if no investments are found
+        return res.status(200).json(investments);
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ message: 'Internal server error' });
+    }
+});
+
+// Route to get payment by ID
+router.get('/investments/:investId', isAuthenticated, async (req, res) => {
+    const { investId } = req.params; // Get investId from URL parameters
+
+    try {
+        // Connect to the Investments collection and find the investment by ID
+        const investment = await req.app.locals.dataDb.collection('Payments').findOne({ _id: new ObjectId(investId) });
+
+        // Check if the investment was found
+        if (!investment) {
+            return res.status(404).json({ message: 'Payment not found' });
+        }
+
+        // Send the found investment as a response
+        return res.status(200).json(investment);
+    } catch (error) {
+        console.error(error); // Log the error for debugging
+        return res.status(500).json({ message: 'Internal server error' }); // Send server error response
+    }
+});
+
+// Update payment status route
+router.put('/investmentControl/:investId', isAuthenticated, async (req, res) => {
+    const investId = req.params.investId; // Extracting investment ID from route parameters
+    const { status} = req.query; // Extracting status and comment from query parameters
+
+    // Check if the investment exists in the Investments collection
+    const investment = await req.app.locals.dataDb.collection('Payments').findOne({ _id: new ObjectId(investId) });
+
+    if (!investment) {
+        return res.status(404).json({ message: 'Payment not found' });
+    }
+
+    if (status === 'active') {
+        const resolveDate = new Date(); 
+    
+        await req.app.locals.dataDb.collection('Payments').updateOne(
+            { _id: new ObjectId(investId) },
+            {
+                $set: {
+                    status: 'resolved', // Set status to 'resolved'
+                    resolveDate // Set the resolveDate to the current date
+                }
+            }
+        );
+    
+        return res.status(200).json({ message: 'Payment resolved successfully' });
+    } else {
+        return res.status(400).json({ message: 'Invalid status' });
+    }
+});
+
+
 // Route for Logout
 router.post('/logout', (req, res) => {
     req.session.destroy(err => {
@@ -219,6 +291,12 @@ router.get('/edit-links', isAuthenticated, (req, res) => {
 });
 router.get('/users', isAuthenticated, (req, res) => {
     res.sendFile(path.join(__dirname, 'dist', 'users.html'));
+});
+router.get('/pending-payment', isAuthenticated, (req, res) => {
+    res.sendFile(path.join(__dirname, 'dist', 'pending-payments.html'));
+});
+router.get('/ressolved-payment', isAuthenticated, (req, res) => {
+    res.sendFile(path.join(__dirname, 'dist', 'resolved-payments.html'));
 });
 
 module.exports = router;

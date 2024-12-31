@@ -2,3 +2,5 @@
 node_modules/
 #Environment Variables
 .env
+# Specific uploads directory
+public/uploads/
